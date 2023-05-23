@@ -1,12 +1,12 @@
 [package]
-name = "holaplex-rust-boilerplate-core"
+name = "holaplex-hub-nfts-polygon-core"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-holaplex-rust-boilerplate-entity = { path = "./../entity" }
+holaplex-hub-nfts-polygon-entity = { path = "../entity" }
 sea-orm = { version = "^0.10.0", features = [
   "debug-print",
   "runtime-tokio-rustls",
@@ -15,10 +15,3 @@ sea-orm = { version = "^0.10.0", features = [
 
 [dev-dependencies]
 tokio = { version = "1.20.0", features = ["macros", "rt"] }
-
-[features]
-mock = ["sea-orm/mock"]
-
-[[test]]
-name = "mock"
-required-features = ["mock"]

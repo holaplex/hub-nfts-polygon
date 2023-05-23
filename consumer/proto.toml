@@ -1,0 +1,6 @@
+[registry]
+endpoint = "https://schemas.holaplex.tools"
+
+[schemas]
+nfts = 7
+treasury = 10

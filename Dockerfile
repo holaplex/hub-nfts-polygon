@@ -23,7 +23,7 @@ COPY core core
 COPY api api
 
 FROM builder AS builder-boilerplate-api
-RUN cargo build --release --bin holaplex-rust-boilerplate-api
+RUN cargo build --release --bin holaplex-hub-nfts-polygon
 
 FROM builder AS builder-migration
 RUN cargo build --release --bin migration
@@ -40,8 +40,8 @@ RUN apt-get update -y && \
   rm -rf /var/lib/apt/lists/*
 
 FROM base AS boilerplate-api
-COPY --from=builder-boilerplate-api /app/target/release/holaplex-rust-boilerplate-api bin
-CMD ["bin/holaplex-rust-boilerplate-api"]
+COPY --from=builder-boilerplate-api /app/target/release/holaplex-hub-nfts-polygon bin
+CMD ["bin/holaplex-hub-nfts-polygon"]
 
 FROM base AS migrator
 COPY --from=builder-migration /app/target/release/migration bin/

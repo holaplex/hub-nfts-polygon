@@ -1,4 +1,8 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [workspace]
-members = ["api", "core", "entity", "migration"]
+members = ["consumer", "core", "entity", "migration", "evm-contracts-build"]
 resolver = "2"
+
+[workspace.dependencies]
+holaplex-hub-nfts-polygon-core = { path = "core" }
+holaplex-hub-nfts-polygon-entity = { path = "entity" }

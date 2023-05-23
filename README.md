@@ -1,12 +1,3 @@
-# hub-rust-boilerplate
-Template rust service repository for the Holaplex Hub
+# HUB NFTs Polygon
 
-# Workspaces
-
-```
-/api # API server
-/core # shared dependencies such as queries and mutations
-/entity # application database models and graphql objects
-/migration # database migrations
-/src # app entry point
-```
+A consumer service that process NFT requests, commits them to Polygon, and emits status to other services.
