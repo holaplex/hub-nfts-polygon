@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:15.1
+    env_file:
+      - .env
+    ports:
+      - 5437:5432
+    volumes: 
+      - holaplex_rust_boilerplate_db:/var/lib/postgresql/data
+volumes:
+  holaplex_rust_boilerplate_db:
