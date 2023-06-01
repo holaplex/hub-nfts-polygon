@@ -11,6 +11,7 @@ build = "build.rs"
 
 [dependencies]
 prost = "0.11.6"
+ethers = "2.0.4"
 holaplex-hub-nfts-polygon-core = { path = "../core" }
 holaplex-hub-nfts-polygon-entity = { path = "../entity" }
 
@@ -26,3 +27,6 @@ package = "holaplex-hub-core-build"
 version = "0.2.0"
 git = "https://github.com/holaplex/hub-core"
 branch = "stable"
+
+[build-dependencies.evm-contracts-build]
+path = "../evm-contracts-build"

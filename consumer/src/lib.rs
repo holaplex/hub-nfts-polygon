@@ -16,6 +16,7 @@ pub mod proto {
     include!(concat!(env!("OUT_DIR"), "/nfts.proto.rs"));
 }
 
+include!(concat!(env!("OUT_DIR"), "/edition_contract.rs"));
 
 #[derive(Debug)]
 pub enum Services {
