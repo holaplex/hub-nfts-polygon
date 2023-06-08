@@ -1,6 +1,6 @@
 [registry]
-endpoint = "https://schemas.holaplex.tools"
+endpoint = "http://localhost:8081"
 
 [schemas]
-nfts = 8
-treasury = 10
+nfts = 4
+polygon_nfts = 4

@@ -2,25 +2,27 @@
 #![warn(clippy::pedantic, clippy::cargo)]
 #![allow(clippy::module_name_repetitions)]
 
-pub mod db;
 pub mod events;
 
-use hub_core::{
-    clap,
-    prelude::*,
-    consumer::RecvError,
-};
+use ethers::providers::{Http, Provider};
+use hub_core::{consumer::RecvError, prelude::*};
+use proto::{PolygonNftEventKey, PolygonNftEvents};
 
 #[allow(clippy::pedantic)]
 pub mod proto {
+    include!(concat!(env!("OUT_DIR"), "/polygon_nfts.rs"));
     include!(concat!(env!("OUT_DIR"), "/nfts.proto.rs"));
 }
 
 include!(concat!(env!("OUT_DIR"), "/edition_contract.rs"));
 
+impl hub_core::producer::Message for PolygonNftEvents {
+    type Key = PolygonNftEventKey;
+}
+
 #[derive(Debug)]
 pub enum Services {
-    Nfts(proto::NftEventKey, proto::NftEvents),
+    Nfts(proto::NftEventKey, proto::PolygonEvents),
 }
 
 impl hub_core::consumer::MessageGroup for Services {
@@ -35,7 +37,7 @@ impl hub_core::consumer::MessageGroup for Services {
         match topic {
             "hub-nfts" => {
                 let key = proto::NftEventKey::decode(key)?;
-                let val = proto::NftEvents::decode(val)?;
+                let val = proto::PolygonEvents::decode(val)?;
 
                 Ok(Services::Nfts(key, val))
             },
@@ -44,11 +46,4 @@ impl hub_core::consumer::MessageGroup for Services {
     }
 }
 
-
-#[derive(Debug, clap::Args)]
-#[command(version, author, about)]
-pub struct Args {
-
-    #[command(flatten)]
-    pub db: db::DbArgs,
-}
+pub type EditionContract = Arc<edition_contract::EditionContract<Provider<Http>>>;

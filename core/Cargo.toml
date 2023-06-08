@@ -2,8 +2,17 @@
 name = "holaplex-hub-nfts-polygon-core"
 version = "0.1.0"
 edition = "2021"
+keywords = ["polygon", "hub", "holaplex", "core"]
+publish = false
+authors = [
+  "Holaplex <engineering@holaplex.com>",
+]
+description = "Holaplex Hub nfts polygon service"
+readme = "./README.md"
+repository = "https://github.com/holaplex/hub-nfts-polygon"
+license = "AGPL-3.0-or-later"
+categories = ["cryptography::cryptocurrencies", "web-programming"]
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
 holaplex-hub-nfts-polygon-entity = { path = "../entity" }
@@ -12,3 +21,10 @@ sea-orm = { version = "^0.10.0", features = [
   "runtime-tokio-rustls",
   "sqlx-postgres",
 ] }
+
+[dependencies.hub-core]
+package = "holaplex-hub-core"
+version = "0.2.0"
+git = "https://github.com/holaplex/hub-core"
+branch = "stable"
+features = []
