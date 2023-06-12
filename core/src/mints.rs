@@ -1,4 +1,8 @@
-use holaplex_hub_nfts_polygon_entity::mints::{ActiveModel, Column, Entity, Model};
+use holaplex_hub_nfts_polygon_entity::{
+    collections::Model as Collection,
+    mints::{ActiveModel, Column, Entity, Model},
+    prelude::Collections,
+};
 use sea_orm::prelude::*;
 
 use crate::db::Connection;
@@ -18,5 +22,18 @@ impl Mint {
         let conn = db.get();
 
         Entity::find().filter(Column::Id.eq(id)).one(conn).await
+    }
+
+    pub async fn find_with_collection(
+        db: &Connection,
+        id: Uuid,
+    ) -> Result<Option<(Model, Option<Collection>)>, DbErr> {
+        let conn: &DatabaseConnection = db.get();
+
+        Entity::find()
+            .filter(Column::Id.eq(id))
+            .find_also_related(Collections)
+            .one(conn)
+            .await
     }
 }

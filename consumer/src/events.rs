@@ -1,13 +1,20 @@
-use holaplex_hub_nfts_polygon_core::{db::Connection, sea_orm::Set, Collection};
+use ethers::types::{Bytes, U256};
+use holaplex_hub_nfts_polygon_core::{db::Connection, sea_orm::Set, Collection, Mint};
 use holaplex_hub_nfts_polygon_entity::collections;
 use hub_core::{anyhow::Error, chrono::Utc, prelude::*, producer::Producer, uuid::Uuid};
 
 use crate::{
     edition_contract,
     proto::{
-        self, polygon_events::Event as PolygonEvents, polygon_nft_events, CreateEditionTransaction,
-        MintEditionTransaction, NftEventKey, PolygonNftEventKey, PolygonNftEvents,
-        PolygonTransaction, UpdateEdtionTransaction,
+        self,
+        polygon_events::Event as PolygonEvents,
+        polygon_nft_events,
+        treasury_events::{
+            EcdsaSignature, Event as TreasuryEvents, PolygonPermitTransferTokenSignature,
+        },
+        CreateEditionTransaction, MintEditionTransaction, NftEventKey, PermitTokenTransferHash,
+        PolygonNftEventKey, PolygonNftEvents, PolygonTokenTransferTxns, PolygonTransactionData,
+        TransferPolygonAsset, TreasuryEventKey, UpdateEdtionTransaction,
     },
     EditionContract, EditionInfo, Services,
 };
@@ -44,7 +51,16 @@ impl Processor {
                 Some(PolygonEvents::MintDrop(payload)) => self.mint_drop(key, payload).await,
                 Some(PolygonEvents::UpdateDrop(payload)) => self.update_drop(key, payload).await,
                 Some(PolygonEvents::RetryMintDrop(payload)) => self.retry_mint(key, payload).await,
+                Some(PolygonEvents::TransferAsset(payload)) => {
+                    self.sign_permit_token_transfer_hash(key, payload).await
+                },
                 None => Ok(()),
+            },
+            Services::Treasuries(key, e) => match e.event {
+                Some(TreasuryEvents::PolygonPermitTransferTokenHashSigned(p)) => {
+                    self.send_transfer_asset_txns(key, p).await
+                },
+                Some(_) | None => Ok(()),
             },
         }
     }
@@ -98,7 +114,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitCreateDropTxn(
-                    PolygonTransaction {
+                    PolygonTransactionData {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -154,7 +170,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
-                    PolygonTransaction {
+                    PolygonTransactionData {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -191,7 +207,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
-                    PolygonTransaction {
+                    PolygonTransactionData {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -228,7 +244,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitMintDropTxn(
-                    PolygonTransaction {
+                    PolygonTransactionData {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -276,7 +292,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitUpdateDropTxn(
-                    PolygonTransaction {
+                    PolygonTransactionData {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -286,6 +302,120 @@ impl Processor {
         } else {
             bail!("No data in transaction")
         }
+
+        Ok(())
+    }
+
+    async fn sign_permit_token_transfer_hash(
+        &self,
+        key: NftEventKey,
+        payload: TransferPolygonAsset,
+    ) -> Result<()> {
+        let TransferPolygonAsset {
+            collection_mint_id,
+            owner_address,
+            recipient_address,
+            amount,
+        } = payload;
+
+        let (_, collection) = Mint::find_with_collection(&self.db, collection_mint_id.parse()?)
+            .await?
+            .context(format!("No mint found for id {collection_mint_id}"))?;
+
+        let collection = collection.context("No collection found")?;
+
+        let hash = self
+            .edition_contract
+            .get_hash_typed_data_v4(
+                owner_address.parse()?,
+                recipient_address.parse()?,
+                collection.edition_id.into(),
+                amount.into(),
+                U256::MAX,
+            )
+            .await
+            .context("failed to get hash of the data")?;
+
+        let event = PolygonNftEvents {
+            event: Some(polygon_nft_events::Event::SignTokenTransferHash(
+                PermitTokenTransferHash {
+                    data: hash.to_vec(),
+                    owner: owner_address,
+                    spender: collection.owner,
+                    recipient: recipient_address,
+                    edition_id: collection.edition_id,
+                    amount,
+                },
+            )),
+        };
+
+        self.producer.send(Some(&event), Some(&key.into())).await?;
+
+        Ok(())
+    }
+
+    async fn send_transfer_asset_txns(
+        &self,
+        key: TreasuryEventKey,
+        payload: PolygonPermitTransferTokenSignature,
+    ) -> Result<()> {
+        let PolygonPermitTransferTokenSignature {
+            signature,
+            owner,
+            spender,
+            recipient,
+            edition_id,
+            amount,
+        } = payload;
+
+        let EcdsaSignature { r, s, v } = signature.context("No ECDSA Signature found")?;
+
+        let permit_tx = self
+            .edition_contract
+            .permit(
+                owner.parse()?,
+                spender.parse()?,
+                edition_id.into(),
+                amount.into(),
+                U256::MAX,
+                v.try_into()?,
+                r.try_into()
+                    .map_err(|_| anyhow!("failed to parse r component of ECDSA"))?,
+                s.try_into()
+                    .map_err(|_| anyhow!("failed to parse s component of ECDSA"))?,
+            )
+            .tx;
+
+        let safe_transfer_from = self
+            .edition_contract
+            .safe_transfer_from(
+                spender.parse()?,
+                recipient.parse()?,
+                edition_id.into(),
+                amount.into(),
+                Bytes::new(),
+            )
+            .tx;
+
+        let permit_tx_data = permit_tx.data().context("No data in permit tx")?;
+        let safe_transfer_from_data = safe_transfer_from
+            .data()
+            .context("No data in safe transfer from tx")?;
+
+        let event = PolygonNftEvents {
+            event: Some(polygon_nft_events::Event::SubmitTransferAssetTxns(
+                PolygonTokenTransferTxns {
+                    permit_token_transfer_txn: Some(PolygonTransactionData {
+                        data: permit_tx_data.0.to_vec(),
+                    }),
+                    safe_transfer_from_txn: Some(PolygonTransactionData {
+                        data: safe_transfer_from_data.0.to_vec(),
+                    }),
+                },
+            )),
+        };
+
+        self.producer.send(Some(&event), Some(&key.into())).await?;
 
         Ok(())
     }
@@ -310,6 +440,21 @@ impl TryFrom<proto::EditionInfo> for edition_contract::EditionInfo {
             uri,
             creator: creator.parse()?,
         })
+    }
+}
+impl From<TreasuryEventKey> for PolygonNftEventKey {
+    fn from(
+        TreasuryEventKey {
+            id,
+            user_id,
+            project_id,
+        }: TreasuryEventKey,
+    ) -> Self {
+        Self {
+            id,
+            user_id,
+            project_id,
+        }
     }
 }
 

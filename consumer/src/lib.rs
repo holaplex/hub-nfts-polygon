@@ -10,8 +10,9 @@ use proto::{PolygonNftEventKey, PolygonNftEvents};
 
 #[allow(clippy::pedantic)]
 pub mod proto {
-    include!(concat!(env!("OUT_DIR"), "/polygon_nfts.rs"));
+    include!(concat!(env!("OUT_DIR"), "/polygon_nfts.proto.rs"));
     include!(concat!(env!("OUT_DIR"), "/nfts.proto.rs"));
+    include!(concat!(env!("OUT_DIR"), "/treasury.proto.rs"));
 }
 
 include!(concat!(env!("OUT_DIR"), "/edition_contract.rs"));
@@ -23,10 +24,11 @@ impl hub_core::producer::Message for PolygonNftEvents {
 #[derive(Debug)]
 pub enum Services {
     Nfts(proto::NftEventKey, proto::PolygonEvents),
+    Treasuries(proto::TreasuryEventKey, proto::TreasuryEvents),
 }
 
 impl hub_core::consumer::MessageGroup for Services {
-    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-nfts"];
+    const REQUESTED_TOPICS: &'static [&'static str] = &["hub-nfts", "hub-treasuries"];
 
     fn from_message<M: hub_core::consumer::Message>(msg: &M) -> Result<Self, RecvError> {
         let topic = msg.topic();
@@ -40,6 +42,12 @@ impl hub_core::consumer::MessageGroup for Services {
                 let val = proto::PolygonEvents::decode(val)?;
 
                 Ok(Services::Nfts(key, val))
+            },
+            "hub-treasuries" => {
+                let key = proto::TreasuryEventKey::decode(key)?;
+                let val = proto::TreasuryEvents::decode(val)?;
+
+                Ok(Services::Treasuries(key, val))
             },
             t => Err(RecvError::BadTopic(t.into())),
         }
