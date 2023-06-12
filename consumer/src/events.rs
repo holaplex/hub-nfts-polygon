@@ -197,10 +197,12 @@ impl Processor {
 
         let typed_tx = self
             .edition_contract
-            .mint(
+            .safe_transfer_from(
+                collection.owner.parse()?,
                 receiver.parse()?,
                 collection.edition_id.into(),
                 amount.into(),
+                Bytes::new(),
             )
             .tx;
 
@@ -234,10 +236,12 @@ impl Processor {
 
         let typed_tx = self
             .edition_contract
-            .mint(
+            .safe_transfer_from(
+                collection.owner.parse()?,
                 receiver.parse()?,
                 collection.edition_id.into(),
                 amount.into(),
+                Bytes::new(),
             )
             .tx;
 
