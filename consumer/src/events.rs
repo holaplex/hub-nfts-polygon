@@ -139,10 +139,11 @@ impl Processor {
             fee_numerator,
             receiver,
             amount,
+            collection_id,
             ..
         } = payload;
 
-        let collection = Collection::find_by_id(&self.db, key.id.parse()?)
+        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
@@ -207,7 +208,7 @@ impl Processor {
 
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
-                event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
+                event: Some(polygon_nft_events::Event::SubmitRetryMintDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
