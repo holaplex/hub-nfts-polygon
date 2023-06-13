@@ -3,12 +3,28 @@ RUN cargo install cargo-chef --locked
 
 WORKDIR /app
 
+RUN apt-get update -y && \
+  apt-get install -y --no-install-recommends \
+    cmake \
+    g++ \
+    libsasl2-dev \
+    libssl-dev \
+    libudev-dev \
+    wget \
+    pkg-config \
+  && \
+  rm -rf /var/lib/apt/lists/*
+
+COPY ci/get-protoc.sh ./
+RUN chmod +x get-protoc.sh
+RUN /app/get-protoc.sh
+
 FROM chef AS planner
 COPY Cargo.* ./
 COPY migration migration
 COPY entity entity
 COPY core core
-COPY api api
+COPY consumer consumer
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -20,9 +36,9 @@ COPY Cargo.* ./
 COPY migration migration
 COPY entity entity
 COPY core core
-COPY api api
+COPY consumer consumer
 
-FROM builder AS builder-boilerplate-api
+FROM builder AS builder-hub-nfts-polygon
 RUN cargo build --release --bin holaplex-hub-nfts-polygon
 
 FROM builder AS builder-migration
@@ -39,9 +55,19 @@ RUN apt-get update -y && \
   && \
   rm -rf /var/lib/apt/lists/*
 
-FROM base AS boilerplate-api
-COPY --from=builder-boilerplate-api /app/target/release/holaplex-hub-nfts-polygon bin
-CMD ["bin/holaplex-hub-nfts-polygon"]
+FROM base AS hub-nfts-polygon
+ENV TZ=Etc/UTC
+ENV APP_USER=runner
+
+RUN groupadd $APP_USER \
+    && useradd --uid 10000 -g $APP_USER $APP_USER \
+    && mkdir -p bin
+
+RUN chown -R $APP_USER:$APP_USER bin
+
+USER 10000
+COPY --from=builder-hub-nfts-polygon /app/target/release/holaplex-hub-nfts-polygon /usr/local/bin
+CMD ["/usr/local/bin/holaplex-hub-nfts-polygon"]
 
 FROM base AS migrator
 COPY --from=builder-migration /app/target/release/migration bin/

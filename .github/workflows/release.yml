@@ -10,7 +10,7 @@ concurrency:
   cancel-in-progress: true
 
 env:
-  SERVICE_NAME: rust-boilerplate
+  SERVICE_NAME: nfts-polygon
   DOCKERHUB_REPO: ${{ vars.DOCKERHUB_ORG }}/${{ github.event.repository.name }}
   DOCKERHUB_MIGRATIONS_REPO: ${{ vars.DOCKERHUB_ORG }}/${{ github.event.repository.name }}-migrations
   CACHE_CONFIG: type=s3,region=${{ vars.AWS_REGION }},bucket=${{ vars.AWS_BUCKET }},access_key_id=${{ secrets.AWS_ACCESS_KEY_ID }},secret_access_key=${{ secrets.AWS_SECRET_ACCESS_KEY }}
@@ -106,9 +106,9 @@ jobs:
         id: vars
         run: |
           if [[ "${{ github.ref }}" == "refs/heads/release" ]]; then
-            echo "::set-output name=environment::prod"
+            echo "environment=prod" >> $GITHUB_OUTPUT
           else
-            echo "::set-output name=environment::stage"
+            echo "environment=stage" >> $GITHUB_OUTPUT
           fi
 
       - name: Invoke workflow in hub-kubes repo
