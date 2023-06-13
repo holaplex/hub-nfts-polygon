@@ -9,11 +9,9 @@ use crate::{
         self,
         polygon_events::Event as PolygonEvents,
         polygon_nft_events,
-        treasury_events::{
-            EcdsaSignature, Event as TreasuryEvents, PolygonPermitTransferTokenSignature,
-        },
-        CreateEditionTransaction, MintEditionTransaction, NftEventKey, PermitTokenTransferHash,
-        PolygonNftEventKey, PolygonNftEvents, PolygonTokenTransferTxns, PolygonTransactionData,
+        treasury_events::{EcdsaSignature, Event as TreasuryEvents, PolygonPermitHashSignature},
+        CreateEditionTransaction, MintEditionTransaction, NftEventKey, PermitArgsHash,
+        PolygonNftEventKey, PolygonNftEvents, PolygonTokenTransferTxns, PolygonTransaction,
         TransferPolygonAsset, TreasuryEventKey, UpdateEdtionTransaction,
     },
     EditionContract, EditionInfo, Services,
@@ -114,7 +112,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitCreateDropTxn(
-                    PolygonTransactionData {
+                    PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -170,7 +168,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
-                    PolygonTransactionData {
+                    PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -209,7 +207,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
-                    PolygonTransactionData {
+                    PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -248,7 +246,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitMintDropTxn(
-                    PolygonTransactionData {
+                    PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -296,7 +294,7 @@ impl Processor {
         if let Some(bytes) = typed_tx.data() {
             let event = PolygonNftEvents {
                 event: Some(polygon_nft_events::Event::SubmitUpdateDropTxn(
-                    PolygonTransactionData {
+                    PolygonTransaction {
                         data: bytes.0.to_vec(),
                     },
                 )),
@@ -341,8 +339,8 @@ impl Processor {
             .context("failed to get hash of the data")?;
 
         let event = PolygonNftEvents {
-            event: Some(polygon_nft_events::Event::SignTokenTransferHash(
-                PermitTokenTransferHash {
+            event: Some(polygon_nft_events::Event::SignPermitTokenTransferHash(
+                PermitArgsHash {
                     data: hash.to_vec(),
                     owner: owner_address,
                     spender: collection.owner,
@@ -361,9 +359,9 @@ impl Processor {
     async fn send_transfer_asset_txns(
         &self,
         key: TreasuryEventKey,
-        payload: PolygonPermitTransferTokenSignature,
+        payload: PolygonPermitHashSignature,
     ) -> Result<()> {
-        let PolygonPermitTransferTokenSignature {
+        let PolygonPermitHashSignature {
             signature,
             owner,
             spender,
@@ -409,10 +407,10 @@ impl Processor {
         let event = PolygonNftEvents {
             event: Some(polygon_nft_events::Event::SubmitTransferAssetTxns(
                 PolygonTokenTransferTxns {
-                    permit_token_transfer_txn: Some(PolygonTransactionData {
+                    permit_token_transfer_txn: Some(PolygonTransaction {
                         data: permit_tx_data.0.to_vec(),
                     }),
-                    safe_transfer_from_txn: Some(PolygonTransactionData {
+                    safe_transfer_from_txn: Some(PolygonTransaction {
                         data: safe_transfer_from_data.0.to_vec(),
                     }),
                 },
