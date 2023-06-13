@@ -16,7 +16,7 @@ impl Collection {
 
     pub async fn update(db: &Connection, am: ActiveModel) -> Result<Model, DbErr> {
         let conn = db.get();
-        am.insert(conn).await
+        am.update(conn).await
     }
 
     pub fn get_active_model(model: Model) -> ActiveModel {
@@ -32,12 +32,14 @@ impl Collection {
     pub async fn find_max_edition_id(db: &Connection) -> Result<Option<i32>, DbErr> {
         let conn = db.get();
 
-        Entity::find()
+        let v: Option<Option<i32>> = Entity::find()
             .select_only()
             .column_as(Column::EditionId.max(), QueryAs::EditionId)
             .into_values::<_, QueryAs>()
             .one(conn)
-            .await
+            .await?;
+
+        Ok(v.flatten())
     }
 }
 

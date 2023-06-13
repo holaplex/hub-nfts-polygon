@@ -1,6 +1,6 @@
 use ethers::types::{Bytes, U256};
 use holaplex_hub_nfts_polygon_core::{db::Connection, sea_orm::Set, Collection, Mint};
-use holaplex_hub_nfts_polygon_entity::collections;
+use holaplex_hub_nfts_polygon_entity::{collections, mints};
 use hub_core::{anyhow::Error, chrono::Utc, prelude::*, producer::Producer, uuid::Uuid};
 
 use crate::{
@@ -74,6 +74,7 @@ impl Processor {
             fee_numerator,
             receiver,
             amount,
+            collection_id,
             ..
         } = payload;
 
@@ -85,7 +86,7 @@ impl Processor {
             + 1;
 
         Collection::create(&self.db, collections::Model {
-            id: Uuid::from_str(&key.id)?,
+            id: Uuid::from_str(&collection_id)?,
             edition_id,
             fee_receiver: fee_receiver.clone(),
             owner: receiver.clone(),
@@ -232,6 +233,15 @@ impl Processor {
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
+        Mint::create(&self.db, mints::Model {
+            id: key.id.parse()?,
+            collection_id: collection_id.parse()?,
+            owner: receiver.parse()?,
+            amount: amount.try_into()?,
+            created_at: Utc::now().naive_utc(),
+        })
+        .await?;
+
         let typed_tx = self
             .edition_contract
             .safe_transfer_from(
@@ -330,7 +340,7 @@ impl Processor {
             .edition_contract
             .get_hash_typed_data_v4(
                 owner_address.parse()?,
-                recipient_address.parse()?,
+                collection.owner.parse()?,
                 collection.edition_id.into(),
                 amount.into(),
                 U256::MAX,
