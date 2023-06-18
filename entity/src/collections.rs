@@ -12,6 +12,7 @@ pub struct Model {
     pub owner: String,
     pub creator: String,
     pub uri: String,
+    pub name: String,
     pub description: String,
     pub image_uri: String,
     pub created_at: DateTime,

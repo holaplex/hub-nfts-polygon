@@ -23,12 +23,12 @@ pub enum Relation {
         on_update = "Cascade",
         on_delete = "Cascade"
     )]
-    Collections,
+    Collection,
 }
 
 impl Related<super::collections::Entity> for Entity {
     fn to() -> RelationDef {
-        Relation::Collections.def()
+        Relation::Collection.def()
     }
 }
 

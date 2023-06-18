@@ -2,6 +2,7 @@ pub use sea_orm_migration::prelude::*;
 
 mod m20230608_110420_create_collections_table;
 mod m20230608_110425_create_mints_table;
+mod m20230618_140219_add_name_to_collections;
 
 pub struct Migrator;
 
@@ -11,6 +12,7 @@ impl MigratorTrait for Migrator {
         vec![
             Box::new(m20230608_110420_create_collections_table::Migration),
             Box::new(m20230608_110425_create_mints_table::Migration),
+            Box::new(m20230618_140219_add_name_to_collections::Migration),
         ]
     }
 }

@@ -74,9 +74,14 @@ impl Processor {
             fee_numerator,
             receiver,
             amount,
-            collection_id,
             ..
         } = payload;
+
+        let key = PolygonNftEventKey {
+            id: key.id,
+            user_id: key.user_id,
+            project_id: key.project_id,
+        };
 
         let edition_info: proto::EditionInfo =
             edition_info.context("EditionInfo not found in event payload")?;
@@ -86,12 +91,13 @@ impl Processor {
             + 1;
 
         Collection::create(&self.db, collections::Model {
-            id: Uuid::from_str(&collection_id)?,
+            id: Uuid::from_str(&key.id)?,
             edition_id,
             fee_receiver: fee_receiver.clone(),
             owner: receiver.clone(),
             creator: edition_info.creator.clone(),
             uri: edition_info.uri.clone(),
+            name: edition_info.collection.clone(),
             description: edition_info.description.clone(),
             image_uri: edition_info.image_uri.clone(),
             created_at: Utc::now().naive_utc(),
@@ -115,14 +121,10 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitCreateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id,
                     },
                 )),
-            };
-
-            let key = PolygonNftEventKey {
-                id: key.id,
-                user_id: key.user_id,
-                project_id: key.project_id,
             };
 
             self.producer.send(Some(&event), Some(&key)).await?;
@@ -139,18 +141,17 @@ impl Processor {
             fee_numerator,
             receiver,
             amount,
-            collection_id,
             ..
         } = payload;
 
-        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
+        let collection = Collection::find_by_id(&self.db, key.id.parse()?)
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
         let edition_info = EditionInfo {
             description: collection.description,
             image_uri: collection.image_uri,
-            collection: String::new(),
+            collection: collection.name,
             uri: collection.uri,
             creator: collection.creator.parse()?,
         };
@@ -172,6 +173,8 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id: collection.edition_id,
                     },
                 )),
             };
@@ -185,15 +188,11 @@ impl Processor {
     }
 
     async fn retry_mint(&self, key: NftEventKey, payload: MintEditionTransaction) -> Result<()> {
-        let MintEditionTransaction {
-            receiver,
-            collection_id,
-            amount,
-        } = payload;
+        let MintEditionTransaction { receiver, amount } = payload;
 
-        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
+        let collection = Collection::find_by_mint_id(&self.db, key.id.parse()?)
             .await?
-            .context(format!("No collection found for id {collection_id}"))?;
+            .context("collection not found")?;
 
         let typed_tx = self
             .edition_contract
@@ -211,6 +210,8 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitRetryMintDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id: collection.edition_id,
                     },
                 )),
             };
@@ -224,19 +225,15 @@ impl Processor {
     }
 
     async fn mint_drop(&self, key: NftEventKey, payload: MintEditionTransaction) -> Result<()> {
-        let MintEditionTransaction {
-            collection_id,
-            receiver,
-            amount,
-        } = payload;
+        let MintEditionTransaction { receiver, amount } = payload;
 
-        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
+        let collection = Collection::find_by_id(&self.db, key.id.parse()?)
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
         Mint::create(&self.db, mints::Model {
             id: key.id.parse()?,
-            collection_id: collection_id.parse()?,
+            collection_id: collection.id,
             owner: receiver.parse()?,
             amount: amount.try_into()?,
             created_at: Utc::now().naive_utc(),
@@ -259,6 +256,8 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitMintDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id: collection.edition_id,
                     },
                 )),
             };
@@ -272,10 +271,7 @@ impl Processor {
     }
 
     async fn update_drop(&self, key: NftEventKey, payload: UpdateEdtionTransaction) -> Result<()> {
-        let UpdateEdtionTransaction {
-            collection_id,
-            edition_info,
-        } = payload;
+        let UpdateEdtionTransaction { edition_info } = payload;
 
         let edition_info = edition_info.context("EditionInfo not found in event payload")?;
         let proto::EditionInfo {
@@ -283,15 +279,17 @@ impl Processor {
             image_uri,
             uri,
             creator,
+            collection,
             ..
         } = edition_info.clone();
 
-        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
+        let collection_model = Collection::find_by_id(&self.db, key.id.parse()?)
             .await?
             .context("collection not found")?;
 
-        let mut collection_am = Collection::get_active_model(collection.clone());
+        let mut collection_am = Collection::get_active_model(collection_model.clone());
         collection_am.description = Set(description);
+        collection_am.name = Set(collection);
         collection_am.image_uri = Set(image_uri);
         collection_am.uri = Set(uri);
         collection_am.creator = Set(creator);
@@ -299,7 +297,7 @@ impl Processor {
 
         let typed_tx = self
             .edition_contract
-            .edit_edition(collection.edition_id.into(), edition_info.try_into()?)
+            .edit_edition(collection_model.edition_id.into(), edition_info.try_into()?)
             .tx;
 
         if let Some(bytes) = typed_tx.data() {
@@ -307,6 +305,8 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitUpdateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id: collection_model.edition_id,
                     },
                 )),
             };
@@ -420,9 +420,13 @@ impl Processor {
                 PolygonTokenTransferTxns {
                     permit_token_transfer_txn: Some(PolygonTransaction {
                         data: permit_tx_data.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id,
                     }),
                     safe_transfer_from_txn: Some(PolygonTransaction {
                         data: safe_transfer_from_data.0.to_vec(),
+                        contract_address: self.edition_contract.address().to_string(),
+                        edition_id,
                     }),
                 },
             )),

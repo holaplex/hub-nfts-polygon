@@ -1,5 +1,8 @@
-use holaplex_hub_nfts_polygon_entity::collections::{ActiveModel, Column, Entity, Model};
-use sea_orm::{prelude::*, QuerySelect};
+use holaplex_hub_nfts_polygon_entity::{
+    collections::{ActiveModel, Column, Entity, Model, Relation},
+    mints,
+};
+use sea_orm::{prelude::*, JoinType, QuerySelect};
 
 use crate::db::Connection;
 
@@ -40,6 +43,16 @@ impl Collection {
             .await?;
 
         Ok(v.flatten())
+    }
+
+    pub async fn find_by_mint_id(db: &Connection, mint_id: Uuid) -> Result<Option<Model>, DbErr> {
+        let conn = db.get();
+
+        Entity::find()
+            .join(JoinType::InnerJoin, Relation::Mints.def())
+            .filter(mints::Column::Id.eq(mint_id))
+            .one(conn)
+            .await
     }
 }
 
