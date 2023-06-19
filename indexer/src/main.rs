@@ -9,7 +9,10 @@ pub fn main() {
     };
 
     hub_core::run(opts, |common, args| {
-        let Args { db } = args;
+        let Args {
+            db,
+            indexer_server_address,
+        } = args;
 
         common.rt.block_on(async move {
             let connection = Connection::new(db)
@@ -28,7 +31,7 @@ pub fn main() {
                     .with(AddData::new(connection))
                     .with(AddData::new(producer)),
             );
-            Server::new(TcpListener::bind("127.0.0.1:3001"))
+            Server::new(TcpListener::bind(indexer_server_address))
                 .run(app)
                 .await
                 .map_err(Into::into)
