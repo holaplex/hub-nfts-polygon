@@ -20,6 +20,10 @@ tokio = "1"
 serde = { version = "1.0.164", features = ["derive"] }
 holaplex-hub-nfts-polygon-core = { path = "../core" }
 holaplex-hub-nfts-polygon-entity = { path = "../entity" }
+hex = "0.4.3"
+hmac = "0.12.1"
+sha2 = "0.10.7"
+thiserror = "1.0.30"
 
 [dependencies.hub-core]
 package = "holaplex-hub-core"

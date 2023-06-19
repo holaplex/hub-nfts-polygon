@@ -18,18 +18,23 @@ use hub_core::{
 };
 use poem::{handler, web::Data, Request, Result};
 
-use crate::types::*;
+use crate::{types::*, Signature};
 
 #[handler]
 pub async fn process(
     payload: Payload,
+    signature: Signature,
     _req: &Request,
     db: Data<&Connection>,
     producer: Data<&Producer<PolygonNftEvents>>,
+    signing_key: Data<&Vec<u8>>,
 ) -> Result<()> {
     let Data(db) = db;
     let Data(producer) = producer;
+
     let ts = Timestamp::from_str(&payload.created_at).context("failed to parse timestamp")?;
+
+    payload.verify(&signature, signing_key.0)?;
 
     if payload.ty == EventType::NftActivity {
         for event in payload.event.activity {
@@ -69,7 +74,7 @@ async fn process_nft_activity(
         }
 
         update_mints_owner(db, &mints, &event.to_address).await?;
-        emit_event(producer, &mints, &event.to_address, &ts).await?;
+        emit_event(producer, &mints, &event.to_address, ts).await?;
     }
     Ok(())
 }

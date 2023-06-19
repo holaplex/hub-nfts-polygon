@@ -1,7 +1,12 @@
 use std::collections::HashMap;
 
-use hub_core::serde_json::Value;
+use hmac::{Hmac, Mac};
+use hub_core::{anyhow::Context, serde_json, serde_json::Value};
+use poem::Result;
 use serde::{Deserialize, Serialize};
+use sha2::Sha256;
+
+use crate::Signature;
 
 #[derive(Debug, Deserialize, Serialize, Eq, PartialEq)]
 #[serde(rename_all = "SCREAMING_SNAKE_CASE")]
@@ -25,6 +30,19 @@ pub struct Payload {
     #[serde(rename = "type")]
     pub ty: EventType,
     pub event: EventPayload,
+}
+
+impl Payload {
+    pub fn verify(&self, signature: &Signature, signing_key: &[u8]) -> Result<()> {
+        let bytes = serde_json::to_vec(&self).context("failed to serialize payload")?;
+        let mut mac =
+            Hmac::<Sha256>::new_from_slice(signing_key).context("failed to build hmac")?;
+        mac.update(&bytes);
+        mac.verify_slice(&signature.0)
+            .context("Invalid message received")?;
+
+        Ok(())
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]

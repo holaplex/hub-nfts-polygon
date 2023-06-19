@@ -12,6 +12,7 @@ pub fn main() {
         let Args {
             db,
             indexer_server_address,
+            alchemy_signing_key,
         } = args;
 
         common.rt.block_on(async move {
@@ -25,11 +26,14 @@ pub fn main() {
                 .build::<PolygonNftEvents>()
                 .await?;
 
+            let signing_key: Vec<_> = alchemy_signing_key.bytes().collect();
+
             let app = Route::new().at(
                 "/",
                 post(process)
                     .with(AddData::new(connection))
-                    .with(AddData::new(producer)),
+                    .with(AddData::new(producer))
+                    .with(AddData::new(signing_key)),
             );
             Server::new(TcpListener::bind(indexer_server_address))
                 .run(app)
