@@ -1984,6 +1984,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "headers"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3e372db8e5c0d213e0cd0b9be18be2aca3d44cf2fe30a9d46a65581cd454584"
+dependencies = [
+ "base64 0.13.1",
+ "bitflags",
+ "bytes",
+ "headers-core",
+ "http",
+ "httpdate",
+ "mime",
+ "sha1",
+]
+
+[[package]]
+name = "headers-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7f66481bfee273957b1f20485a4ff3362987f85b2c236580d81b4eb7a326429"
+dependencies = [
+ "http",
+]
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2127,8 +2152,13 @@ dependencies = [
 name = "holaplex-hub-nfts-polygon-core"
 version = "0.1.0"
 dependencies = [
+ "ethers",
+ "evm-contracts-build",
  "holaplex-hub-core",
+ "holaplex-hub-core-build",
  "holaplex-hub-nfts-polygon-entity",
+ "prost",
+ "prost-types",
  "sea-orm 0.11.3",
 ]
 
@@ -2138,6 +2168,18 @@ version = "0.1.0"
 dependencies = [
  "sea-orm 0.11.3",
  "serde",
+]
+
+[[package]]
+name = "holaplex-hub-nfts-polygon-indexer"
+version = "0.1.0"
+dependencies = [
+ "holaplex-hub-core",
+ "holaplex-hub-nfts-polygon-core",
+ "holaplex-hub-nfts-polygon-entity",
+ "poem",
+ "serde",
+ "tokio",
 ]
 
 [[package]]
@@ -3143,6 +3185,48 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
 
 [[package]]
+name = "poem"
+version = "1.3.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a56df40b79ebdccf7986b337f9b0e51ac55cd5e9d21fb20b6aa7c7d49741854"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "futures-util",
+ "headers",
+ "http",
+ "hyper",
+ "mime",
+ "parking_lot 0.12.1",
+ "percent-encoding",
+ "pin-project-lite",
+ "poem-derive",
+ "regex",
+ "rfc7239",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "smallvec",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "poem-derive"
+version = "1.3.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1701f977a2d650a03df42c053686ea0efdb83554f34c7b026b89383c0a1b7846"
+dependencies = [
+ "proc-macro-crate 1.3.1",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "polling"
 version = "2.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3558,6 +3642,15 @@ checksum = "f8dd2a808d456c4a54e300a23e9f5a67e122c3024119acbfd73e3bf664491cb2"
 dependencies = [
  "hmac",
  "subtle",
+]
+
+[[package]]
+name = "rfc7239"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "087317b3cf7eb481f13bd9025d729324b7cd068d6f470e2d76d049e191f5ba47"
+dependencies = [
+ "uncased",
 ]
 
 [[package]]
@@ -5005,6 +5098,15 @@ dependencies = [
  "crunchy",
  "hex",
  "static_assertions",
+]
+
+[[package]]
+name = "uncased"
+version = "0.9.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b9bc53168a4be7402ab86c3aad243a84dd7381d09be0eddc81280c1da95ca68"
+dependencies = [
+ "version_check",
 ]
 
 [[package]]

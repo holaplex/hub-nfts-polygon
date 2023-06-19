@@ -22,6 +22,7 @@ impl Collection {
         am.update(conn).await
     }
 
+    #[must_use]
     pub fn get_active_model(model: Model) -> ActiveModel {
         model.into()
     }

@@ -1,9 +1,12 @@
 use holaplex_hub_nfts_polygon_entity::{
-    collections::Model as Collection,
-    mints::{ActiveModel, Column, Entity, Model},
+    collections::{self, Model as Collection},
+    mints::{ActiveModel, Column, Entity, Model, Relation},
     prelude::Collections,
 };
-use sea_orm::prelude::*;
+use sea_orm::{
+    prelude::*, ActiveModelTrait, ColumnTrait, EntityTrait, JoinType, QueryFilter, QuerySelect,
+    RelationTrait,
+};
 
 use crate::db::Connection;
 
@@ -34,6 +37,21 @@ impl Mint {
             .filter(Column::Id.eq(id))
             .find_also_related(Collections)
             .one(conn)
+            .await
+    }
+
+    pub async fn get_mints_for_edition(
+        db: &Connection,
+        owner: &str,
+        edition_id: u64,
+        value: u64,
+    ) -> Result<Vec<Model>, DbErr> {
+        Entity::find()
+            .join(JoinType::InnerJoin, Relation::Collection.def())
+            .filter(collections::Column::EditionId.eq(edition_id))
+            .filter(Column::Owner.eq(owner))
+            .limit(Some(value))
+            .all(db.get())
             .await
     }
 }

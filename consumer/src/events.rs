@@ -1,10 +1,6 @@
 use ethers::types::{Bytes, U256};
-use holaplex_hub_nfts_polygon_core::{db::Connection, sea_orm::Set, Collection, Mint};
-use holaplex_hub_nfts_polygon_entity::{collections, mints};
-use hub_core::{anyhow::Error, chrono::Utc, prelude::*, producer::Producer, uuid::Uuid};
-
-use crate::{
-    edition_contract,
+use holaplex_hub_nfts_polygon_core::{
+    db::Connection,
     proto::{
         self,
         polygon_events::Event as PolygonEvents,
@@ -14,8 +10,13 @@ use crate::{
         PolygonNftEventKey, PolygonNftEvents, PolygonTokenTransferTxns, PolygonTransaction,
         TransferPolygonAsset, TreasuryEventKey, UpdateEdtionTransaction,
     },
-    EditionContract, EditionInfo, Services,
+    sea_orm::Set,
+    Collection, EditionInfo, Mint, Services,
 };
+use holaplex_hub_nfts_polygon_entity::{collections, mints};
+use hub_core::{chrono::Utc, prelude::*, producer::Producer, uuid::Uuid};
+
+use crate::EditionContract;
 
 #[derive(Clone)]
 pub struct Processor {
@@ -435,58 +436,5 @@ impl Processor {
         self.producer.send(Some(&event), Some(&key.into())).await?;
 
         Ok(())
-    }
-}
-
-impl TryFrom<proto::EditionInfo> for edition_contract::EditionInfo {
-    type Error = Error;
-
-    fn try_from(
-        proto::EditionInfo {
-            description,
-            image_uri,
-            collection,
-            uri,
-            creator,
-        }: proto::EditionInfo,
-    ) -> Result<Self> {
-        Ok(Self {
-            description,
-            image_uri,
-            collection,
-            uri,
-            creator: creator.parse()?,
-        })
-    }
-}
-impl From<TreasuryEventKey> for PolygonNftEventKey {
-    fn from(
-        TreasuryEventKey {
-            id,
-            user_id,
-            project_id,
-        }: TreasuryEventKey,
-    ) -> Self {
-        Self {
-            id,
-            user_id,
-            project_id,
-        }
-    }
-}
-
-impl From<NftEventKey> for PolygonNftEventKey {
-    fn from(
-        NftEventKey {
-            id,
-            user_id,
-            project_id,
-        }: NftEventKey,
-    ) -> Self {
-        Self {
-            id,
-            user_id,
-            project_id,
-        }
     }
 }

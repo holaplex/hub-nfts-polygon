@@ -1,10 +1,13 @@
 use std::sync::Arc;
 
 use ethers::{providers::Provider, types::Address};
-use holaplex_hub_nfts_polygon::{
-    edition_contract, events::Processor, proto::PolygonNftEvents, Services,
+use holaplex_hub_nfts_polygon::events::Processor;
+use holaplex_hub_nfts_polygon_core::{
+    db::{Connection, DbArgs},
+    edition_contract,
+    proto::PolygonNftEvents,
+    Services,
 };
-use holaplex_hub_nfts_polygon_core::db::{Connection, DbArgs};
 use hub_core::{clap, prelude::*, tokio};
 
 #[derive(Debug, clap::Args)]

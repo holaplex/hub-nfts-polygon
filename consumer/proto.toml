@@ -1,8 +1,0 @@
-[registry]
-endpoint = "https://schemas.holaplex.tools"
-
-
-[schemas]
-nfts = 14
-polygon_nfts = 3
-treasury = 15

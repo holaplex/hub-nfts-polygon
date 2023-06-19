@@ -1,6 +1,6 @@
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [workspace]
-members = ["consumer", "core", "entity", "migration", "evm-contracts-build"]
+members = ["consumer", "core", "entity", "migration", "evm-contracts-build", "indexer"]
 resolver = "2"
 
 [workspace.dependencies]
