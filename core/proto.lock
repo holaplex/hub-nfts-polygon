@@ -5,8 +5,8 @@ sha512 = "8158d40a21145a2a0ef9a93ce423ef61fe404d9cc2b9fc3d1d358ba54e7ceb447c03f2
 
 [[schemas]]
 subject = "polygon_nfts"
-version = 4
-sha512 = "296a60c3e5ecca1b53ff8d854a85c8777943a9d50dbaaf444fd4aa8cacb3d3f31723b805a5e891e0154761500ce7543e7a565999dfe45d1f14a2ce32193b22ac"
+version = 5
+sha512 = "cc7811d7a199f6ac30d3716b01a01f92a60b78814be7deefa384a366c5af06042b8c59589e7c375e7aaa25abc108b91ddfd747d0a2b4196e9b0f0bb977bc7046"
 
 [[schemas]]
 subject = "treasury"

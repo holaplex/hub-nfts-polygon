@@ -4,7 +4,7 @@ mod types;
 use std::net::SocketAddr;
 
 use error::Error;
-pub use handler::process;
+pub use handler::{process, NftActivityController};
 use holaplex_hub_nfts_polygon_core::db::DbArgs;
 use hub_core::clap;
 use poem::{FromRequest, Request, RequestBody, Result};
@@ -21,6 +21,9 @@ pub struct Args {
 
     #[arg(long, env)]
     pub alchemy_signing_key: String,
+
+    #[arg(long, env)]
+    pub polygon_edition_contract: String,
 }
 
 #[poem::async_trait]
