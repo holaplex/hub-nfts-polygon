@@ -13,6 +13,10 @@ use crate::db::Connection;
 pub struct Mint;
 
 impl Mint {
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn create(db: &Connection, model: Model) -> Result<Model, DbErr> {
         let conn = db.get();
 
@@ -21,12 +25,20 @@ impl Mint {
         active_model.insert(conn).await
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn find_by_id(db: &Connection, id: Uuid) -> Result<Option<Model>, DbErr> {
         let conn = db.get();
 
         Entity::find().filter(Column::Id.eq(id)).one(conn).await
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn find_with_collection(
         db: &Connection,
         id: Uuid,
@@ -40,6 +52,10 @@ impl Mint {
             .await
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn get_mints_for_edition(
         db: &Connection,
         owner: &str,

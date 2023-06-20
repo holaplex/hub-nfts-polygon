@@ -11,8 +11,8 @@ pub fn main() {
     hub_core::run(opts, |common, args| {
         let Args {
             db,
-            indexer_server_address,
-            alchemy_signing_key,
+            port,
+            webhook_signing_key,
             polygon_edition_contract,
         } = args;
 
@@ -27,7 +27,7 @@ pub fn main() {
                 .build::<PolygonNftEvents>()
                 .await?;
 
-            let signing_key: Vec<_> = alchemy_signing_key.bytes().collect();
+            let signing_key: Vec<_> = webhook_signing_key.bytes().collect();
 
             let processor = NftActivityController::new(
                 connection,
@@ -37,7 +37,7 @@ pub fn main() {
             );
 
             let app = Route::new().at("/", post(process).with(AddData::new(processor)));
-            Server::new(TcpListener::bind(indexer_server_address))
+            Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
                 .run(app)
                 .await
                 .map_err(Into::into)

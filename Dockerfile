@@ -49,6 +49,9 @@ COPY indexer indexer
 FROM builder AS builder-hub-nfts-polygon
 RUN cargo build --release --bin holaplex-hub-nfts-polygon
 
+FROM builder AS builder-hub-nfts-polygon-indexer
+RUN cargo build --release --bin holaplex-hub-nfts-polygon-indexer
+
 FROM builder AS builder-migration
 RUN cargo build --release --bin migration
 
@@ -75,6 +78,7 @@ RUN chown -R $APP_USER:$APP_USER bin
 
 USER 10000
 COPY --from=builder-hub-nfts-polygon /app/target/release/holaplex-hub-nfts-polygon /usr/local/bin
+COPY --from=builder-hub-nfts-polygon-indexer /app/target/release/holaplex-hub-nfts-polygon-indexer /usr/local/bin
 CMD ["/usr/local/bin/holaplex-hub-nfts-polygon"]
 
 FROM base AS migrator

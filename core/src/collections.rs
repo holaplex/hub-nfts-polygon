@@ -9,6 +9,10 @@ use crate::db::Connection;
 pub struct Collection;
 
 impl Collection {
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn create(db: &Connection, model: Model) -> Result<Model, DbErr> {
         let conn = db.get();
 
@@ -17,6 +21,10 @@ impl Collection {
         active_model.insert(conn).await
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn update(db: &Connection, am: ActiveModel) -> Result<Model, DbErr> {
         let conn = db.get();
         am.update(conn).await
@@ -27,12 +35,20 @@ impl Collection {
         model.into()
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn find_by_id(db: &Connection, id: Uuid) -> Result<Option<Model>, DbErr> {
         let conn = db.get();
 
         Entity::find().filter(Column::Id.eq(id)).one(conn).await
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn find_max_edition_id(db: &Connection) -> Result<Option<i32>, DbErr> {
         let conn = db.get();
 
@@ -46,6 +62,10 @@ impl Collection {
         Ok(v.flatten())
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn find_by_mint_id(db: &Connection, mint_id: Uuid) -> Result<Option<Model>, DbErr> {
         let conn = db.get();
 
