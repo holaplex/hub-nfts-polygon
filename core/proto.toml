@@ -3,6 +3,7 @@ endpoint = "https://schemas.holaplex.tools"
 
 
 [schemas]
-nfts = 14
-polygon_nfts = 5
+nfts = 15
+polygon_nfts = 6
 treasury = 15
+timestamp = 1

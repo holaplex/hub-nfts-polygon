@@ -28,14 +28,14 @@ prost-types = "0.11.9"
 
 [dependencies.hub-core]
 package = "holaplex-hub-core"
-version = "0.2.0"
+version = "0.2.1"
 git = "https://github.com/holaplex/hub-core"
 branch = "stable"
 features = []
 
 [build-dependencies.hub-core-build]
 package = "holaplex-hub-core-build"
-version = "0.2.0"
+version = "0.2.1"
 git = "https://github.com/holaplex/hub-core"
 branch = "stable"
 
