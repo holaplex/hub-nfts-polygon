@@ -39,6 +39,10 @@ impl Processor {
         }
     }
 
+    /// Res
+    ///
+    /// # Errors
+    /// This function fails if ...
     pub async fn process(&self, msg: Services) -> Result<()> {
         // match topics
         match msg {

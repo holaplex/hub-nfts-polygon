@@ -1,7 +1,6 @@
 mod error;
 mod handler;
 mod types;
-use std::net::SocketAddr;
 
 use error::Error;
 pub use handler::{process, NftActivityController};
@@ -17,11 +16,11 @@ pub struct Args {
     #[command(flatten)]
     pub db: DbArgs,
 
-    #[arg(long, default_value = "0.0.0.0:4000", env)]
-    pub indexer_server_address: SocketAddr,
+    #[arg(short, long, env, default_value_t = 4000)]
+    pub port: u16,
 
     #[arg(long, env)]
-    pub alchemy_signing_key: String,
+    pub webhook_signing_key: String,
 
     #[arg(long, env)]
     pub polygon_edition_contract: String,
