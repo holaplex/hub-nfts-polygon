@@ -429,6 +429,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2dabbe35f96fb9507f7330793dc490461b2962659ac5d427181e451a623751d1"
 
 [[package]]
+name = "bigdecimal"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a6773ddc0eafc0e509fb60e48dff7f450f8e674a0686ae8605e8d9901bd5eefa"
+dependencies = [
+ "num-bigint",
+ "num-integer",
+ "num-traits",
+]
+
+[[package]]
 name = "bincode"
 version = "1.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -807,7 +818,7 @@ dependencies = [
  "k256",
  "lazy_static",
  "serde",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "thiserror",
 ]
 
@@ -824,7 +835,7 @@ dependencies = [
  "once_cell",
  "pbkdf2 0.12.1",
  "rand",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "thiserror",
 ]
 
@@ -843,7 +854,7 @@ dependencies = [
  "ripemd",
  "serde",
  "serde_derive",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "sha3",
  "thiserror",
 ]
@@ -1286,7 +1297,7 @@ dependencies = [
  "scrypt",
  "serde",
  "serde_json",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "sha3",
  "thiserror",
  "uuid 0.8.2",
@@ -1549,7 +1560,7 @@ dependencies = [
  "ethers-core",
  "hex",
  "rand",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "thiserror",
  "tracing",
 ]
@@ -1973,6 +1984,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "headers"
+version = "0.3.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3e372db8e5c0d213e0cd0b9be18be2aca3d44cf2fe30a9d46a65581cd454584"
+dependencies = [
+ "base64 0.13.1",
+ "bitflags",
+ "bytes",
+ "headers-core",
+ "http",
+ "httpdate",
+ "mime",
+ "sha1",
+]
+
+[[package]]
+name = "headers-core"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7f66481bfee273957b1f20485a4ff3362987f85b2c236580d81b4eb7a326429"
+dependencies = [
+ "http",
+]
+
+[[package]]
 name = "heck"
 version = "0.3.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2083,7 +2119,7 @@ dependencies = [
  "prost-build",
  "reqwest",
  "serde",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "tempfile",
  "tokio",
  "toml 0.5.11",
@@ -2116,16 +2152,38 @@ dependencies = [
 name = "holaplex-hub-nfts-polygon-core"
 version = "0.1.0"
 dependencies = [
+ "ethers",
+ "evm-contracts-build",
+ "holaplex-hub-core",
+ "holaplex-hub-core-build",
  "holaplex-hub-nfts-polygon-entity",
- "sea-orm",
+ "prost",
+ "prost-types",
+ "sea-orm 0.11.3",
 ]
 
 [[package]]
 name = "holaplex-hub-nfts-polygon-entity"
 version = "0.1.0"
 dependencies = [
- "sea-orm",
+ "sea-orm 0.11.3",
  "serde",
+]
+
+[[package]]
+name = "holaplex-hub-nfts-polygon-indexer"
+version = "0.1.0"
+dependencies = [
+ "hex",
+ "hmac",
+ "holaplex-hub-core",
+ "holaplex-hub-nfts-polygon-core",
+ "holaplex-hub-nfts-polygon-entity",
+ "poem",
+ "serde",
+ "sha2 0.10.7",
+ "thiserror",
+ "tokio",
 ]
 
 [[package]]
@@ -2416,7 +2474,7 @@ dependencies = [
  "ecdsa",
  "elliptic-curve",
  "once_cell",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "signature",
 ]
 
@@ -2992,7 +3050,7 @@ dependencies = [
  "digest 0.10.7",
  "hmac",
  "password-hash",
- "sha2 0.10.6",
+ "sha2 0.10.7",
 ]
 
 [[package]]
@@ -3129,6 +3187,48 @@ name = "pkg-config"
 version = "0.3.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "26072860ba924cbfa98ea39c8c19b4dd6a4a25423dbdf219c1eca91aa0cf6964"
+
+[[package]]
+name = "poem"
+version = "1.3.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0a56df40b79ebdccf7986b337f9b0e51ac55cd5e9d21fb20b6aa7c7d49741854"
+dependencies = [
+ "anyhow",
+ "async-trait",
+ "bytes",
+ "futures-util",
+ "headers",
+ "http",
+ "hyper",
+ "mime",
+ "parking_lot 0.12.1",
+ "percent-encoding",
+ "pin-project-lite",
+ "poem-derive",
+ "regex",
+ "rfc7239",
+ "serde",
+ "serde_json",
+ "serde_urlencoded",
+ "smallvec",
+ "thiserror",
+ "tokio",
+ "tokio-util",
+ "tracing",
+]
+
+[[package]]
+name = "poem-derive"
+version = "1.3.56"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1701f977a2d650a03df42c053686ea0efdb83554f34c7b026b89383c0a1b7846"
+dependencies = [
+ "proc-macro-crate 1.3.1",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
 
 [[package]]
 name = "polling"
@@ -3549,6 +3649,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rfc7239"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "087317b3cf7eb481f13bd9025d729324b7cd068d6f470e2d76d049e191f5ba47"
+dependencies = [
+ "uncased",
+]
+
+[[package]]
 name = "ring"
 version = "0.16.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3808,7 +3917,7 @@ dependencies = [
  "hmac",
  "pbkdf2 0.11.0",
  "salsa20",
- "sha2 0.10.6",
+ "sha2 0.10.7",
 ]
 
 [[package]]
@@ -3829,15 +3938,38 @@ checksum = "88694d01b528a94f90ad87f8d2f546d060d070eee180315c67d158cb69476034"
 dependencies = [
  "async-stream",
  "async-trait",
- "chrono",
  "futures",
  "futures-util",
  "log",
  "ouroboros",
+ "sea-orm-macros 0.10.7",
+ "sea-query 0.27.2",
+ "sea-query-binder 0.2.2",
+ "sea-strum",
+ "serde",
+ "sqlx",
+ "thiserror",
+ "tracing",
+ "url",
+]
+
+[[package]]
+name = "sea-orm"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fade86e8d41fd1a4721f84cb834f4ca2783f973cc30e6212b7fafc134f169214"
+dependencies = [
+ "async-stream",
+ "async-trait",
+ "bigdecimal",
+ "chrono",
+ "futures",
+ "log",
+ "ouroboros",
  "rust_decimal",
- "sea-orm-macros",
- "sea-query",
- "sea-query-binder",
+ "sea-orm-macros 0.11.3",
+ "sea-query 0.28.5",
+ "sea-query-binder 0.3.1",
  "sea-strum",
  "serde",
  "serde_json",
@@ -3879,6 +4011,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "sea-orm-macros"
+version = "0.11.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "28936f26d62234ff0be16f80115dbdeb3237fe9c25cf18fbcd1e3b3592360f20"
+dependencies = [
+ "bae",
+ "heck 0.3.3",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "sea-orm-migration"
 version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3887,7 +4032,7 @@ dependencies = [
  "async-trait",
  "clap 3.2.25",
  "dotenvy",
- "sea-orm",
+ "sea-orm 0.10.7",
  "sea-orm-cli",
  "sea-schema",
  "tracing",
@@ -3900,9 +4045,19 @@ version = "0.27.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a4f0fc4d8e44e1d51c739a68d336252a18bc59553778075d5e32649be6ec92ed"
 dependencies = [
+ "sea-query-derive 0.2.0",
+]
+
+[[package]]
+name = "sea-query"
+version = "0.28.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bbab99b8cd878ab7786157b7eb8df96333a6807cc6e45e8888c85b51534b401a"
+dependencies = [
+ "bigdecimal",
  "chrono",
  "rust_decimal",
- "sea-query-derive",
+ "sea-query-derive 0.3.0",
  "serde_json",
  "time 0.3.22",
  "uuid 1.3.4",
@@ -3914,9 +4069,20 @@ version = "0.2.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9c2585b89c985cfacfe0ec9fc9e7bb055b776c1a2581c4e3c6185af2b8bf8865"
 dependencies = [
+ "sea-query 0.27.2",
+ "sqlx",
+]
+
+[[package]]
+name = "sea-query-binder"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4cea85029985b40dfbf18318d85fe985c04db7c1b4e5e8e0a0a0cdff5f1e30f9"
+dependencies = [
+ "bigdecimal",
  "chrono",
  "rust_decimal",
- "sea-query",
+ "sea-query 0.28.5",
  "serde_json",
  "sqlx",
  "time 0.3.22",
@@ -3937,13 +4103,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "sea-query-derive"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "63f62030c60f3a691f5fe251713b4e220b306e50a71e1d6f9cce1f24bb781978"
+dependencies = [
+ "heck 0.4.1",
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+ "thiserror",
+]
+
+[[package]]
 name = "sea-schema"
 version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "38d5fda574d980e9352b6c7abd6fc75697436fe0078cac2b548559b52643ad3b"
 dependencies = [
  "futures",
- "sea-query",
+ "sea-query 0.27.2",
  "sea-schema-derive",
 ]
 
@@ -4151,9 +4330,9 @@ dependencies = [
 
 [[package]]
 name = "sha2"
-version = "0.10.6"
+version = "0.10.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "82e6b795fe2e3b1e845bafcb27aa35405c4d47cdfc92af5fc8d3002f76cebdc0"
+checksum = "479fb9d862239e610720565ca91403019f2f00410f1864c5aa7479b950a76ed8"
 dependencies = [
  "cfg-if",
  "cpufeatures",
@@ -4302,6 +4481,7 @@ dependencies = [
  "ahash 0.7.6",
  "atoi",
  "base64 0.13.1",
+ "bigdecimal",
  "bitflags",
  "byteorder",
  "bytes",
@@ -4337,7 +4517,7 @@ dependencies = [
  "serde",
  "serde_json",
  "sha1",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "smallvec",
  "sqlformat",
  "sqlx-rt",
@@ -4364,7 +4544,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "serde_json",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "sqlx-core",
  "sqlx-rt",
  "syn 1.0.109",
@@ -4459,7 +4639,7 @@ dependencies = [
  "semver",
  "serde",
  "serde_json",
- "sha2 0.10.6",
+ "sha2 0.10.7",
  "thiserror",
  "url",
  "zip",
@@ -4925,6 +5105,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "uncased"
+version = "0.9.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "9b9bc53168a4be7402ab86c3aad243a84dd7381d09be0eddc81280c1da95ca68"
+dependencies = [
+ "version_check",
+]
+
+[[package]]
 name = "unicode-bidi"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -5009,7 +5198,6 @@ version = "1.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fa2982af2eec27de306107c027578ff7f423d65f7250e40ce0fea8f45248b81"
 dependencies = [
- "getrandom",
  "serde",
 ]
 

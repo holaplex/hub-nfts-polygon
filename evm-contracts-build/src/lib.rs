@@ -1,6 +1,7 @@
-use eyre::{Error, Result};
-use ethers::prelude::Abigen;
 use std::path::PathBuf;
+
+use ethers::prelude::Abigen;
+use eyre::{Error, Result};
 
 const EDITION_CONTRACT_OUT_FILE: &str = "edition_contract.rs";
 

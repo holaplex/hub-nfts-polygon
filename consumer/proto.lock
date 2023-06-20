@@ -1,9 +1,0 @@
-[[schemas]]
-subject = "nfts"
-version = 8
-sha512 = "d6e5e506b817b67941c9a16782c89f5ce1eec88fc133cabd410140b9c348af849925b2a766bfba024c94e0bae16ee4294d62f697e73f00c0f77e8fe1c4b9b648"
-
-[[schemas]]
-subject = "treasury"
-version = 10
-sha512 = "c148bc413f412a447b65b2faff81cbf8e05899fe34f46fc8b4af7aac513bb4af03528607800fb6f43d6cfcd52c685ed35dc10942ffe5c0467dd586c6e4b95ba2"
