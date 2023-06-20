@@ -1,7 +1,7 @@
 [[schemas]]
 subject = "nfts"
-version = 14
-sha512 = "8158d40a21145a2a0ef9a93ce423ef61fe404d9cc2b9fc3d1d358ba54e7ceb447c03f2c0507d1388595d523ba216a7ba483535c566059740fa301476eb190288"
+version = 15
+sha512 = "a0f3bf58c9c19f1e496d55bfc8b8ce42e66aef8ff60b7d32766d65551be6467488ed5ce24ed173399e5921179ff2733a0ca524470af7a8ff437e81a3cffa589a"
 
 [[schemas]]
 subject = "polygon_nfts"

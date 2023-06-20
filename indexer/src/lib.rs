@@ -34,7 +34,7 @@ impl PayloadBytes {
         let bytes = &self.0;
         let mut mac =
             Hmac::<Sha256>::new_from_slice(signing_key).context("failed to build hmac")?;
-        mac.update(&bytes);
+        mac.update(bytes);
         mac.verify_slice(&signature.0)
             .context("Invalid message received")?;
 

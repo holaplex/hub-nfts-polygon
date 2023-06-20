@@ -20,11 +20,15 @@ RUN chmod +x get-protoc.sh
 RUN /app/get-protoc.sh
 
 FROM chef AS planner
+
 COPY Cargo.* ./
-COPY migration migration
-COPY entity entity
-COPY core core
 COPY consumer consumer
+COPY core core
+COPY entity entity
+COPY migration migration
+COPY evm-contracts-build evm-contracts-build
+COPY indexer indexer
+
 RUN cargo chef prepare --recipe-path recipe.json
 
 FROM chef AS builder
@@ -33,10 +37,14 @@ COPY --from=planner /app/recipe.json recipe.json
 RUN cargo chef cook --release --recipe-path recipe.json
 # Build application
 COPY Cargo.* ./
-COPY migration migration
-COPY entity entity
-COPY core core
+
 COPY consumer consumer
+COPY core core
+COPY entity entity
+COPY migration migration
+COPY evm-contracts-build evm-contracts-build
+COPY indexer indexer
+
 
 FROM builder AS builder-hub-nfts-polygon
 RUN cargo build --release --bin holaplex-hub-nfts-polygon
