@@ -95,21 +95,18 @@ impl Processor {
             .unwrap_or(0)
             + 1;
 
-        Collection::create(
-            &self.db,
-            collections::Model {
-                id: Uuid::from_str(&key.id)?,
-                edition_id,
-                fee_receiver: fee_receiver.clone(),
-                owner: receiver.clone(),
-                creator: edition_info.creator.clone(),
-                uri: edition_info.uri.clone(),
-                name: edition_info.collection.clone(),
-                description: edition_info.description.clone(),
-                image_uri: edition_info.image_uri.clone(),
-                created_at: Utc::now().naive_utc(),
-            },
-        )
+        Collection::create(&self.db, collections::Model {
+            id: Uuid::from_str(&key.id)?,
+            edition_id,
+            fee_receiver: fee_receiver.clone(),
+            owner: receiver.clone(),
+            creator: edition_info.creator.clone(),
+            uri: edition_info.uri.clone(),
+            name: edition_info.collection.clone(),
+            description: edition_info.description.clone(),
+            image_uri: edition_info.image_uri.clone(),
+            created_at: Utc::now().naive_utc(),
+        })
         .await?;
 
         let typed_tx = self
@@ -239,16 +236,13 @@ impl Processor {
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
-        Mint::create(
-            &self.db,
-            mints::Model {
-                id: key.id.parse()?,
-                collection_id: collection.id,
-                owner: receiver.parse()?,
-                amount: amount.try_into()?,
-                created_at: Utc::now().naive_utc(),
-            },
-        )
+        Mint::create(&self.db, mints::Model {
+            id: key.id.parse()?,
+            collection_id: collection.id,
+            owner: receiver.parse()?,
+            amount: amount.try_into()?,
+            created_at: Utc::now().naive_utc(),
+        })
         .await?;
 
         let typed_tx = self
