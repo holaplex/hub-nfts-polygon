@@ -2140,7 +2140,6 @@ name = "holaplex-hub-nfts-polygon"
 version = "0.1.0"
 dependencies = [
  "ethers",
- "evm-contracts-build",
  "holaplex-hub-core",
  "holaplex-hub-core-build",
  "holaplex-hub-nfts-polygon-core",
