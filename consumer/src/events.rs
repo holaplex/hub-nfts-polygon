@@ -77,7 +77,6 @@ impl Processor {
             edition_info,
             fee_receiver,
             fee_numerator,
-            receiver,
             amount,
             ..
         } = payload;
@@ -95,11 +94,14 @@ impl Processor {
             .unwrap_or(0)
             + 1;
 
+        let deployer = self.edition_contract.owner().await?;
+        let owner = format!("{deployer:?}");
+
         Collection::create(&self.db, collections::Model {
             id: Uuid::from_str(&key.id)?,
             edition_id,
             fee_receiver: fee_receiver.clone(),
-            owner: receiver.clone(),
+            owner,
             creator: edition_info.creator.clone(),
             uri: edition_info.uri.clone(),
             name: edition_info.collection.clone(),
@@ -114,7 +116,7 @@ impl Processor {
             .create_edition(
                 edition_id.into(),
                 edition_info.try_into()?,
-                receiver.parse()?,
+                deployer,
                 amount.into(),
                 fee_receiver.parse()?,
                 fee_numerator.try_into()?,
@@ -144,7 +146,6 @@ impl Processor {
         let CreateEditionTransaction {
             fee_receiver,
             fee_numerator,
-            receiver,
             amount,
             ..
         } = payload;
@@ -166,7 +167,7 @@ impl Processor {
             .create_edition(
                 collection.edition_id.into(),
                 edition_info,
-                receiver.parse()?,
+                collection.owner.parse()?,
                 amount.into(),
                 fee_receiver.parse()?,
                 fee_numerator.try_into()?,
@@ -194,12 +195,18 @@ impl Processor {
 
     async fn retry_mint(&self, key: NftEventKey, payload: MintEditionTransaction) -> Result<()> {
         let MintEditionTransaction {
-            receiver, amount, ..
+            receiver,
+            amount,
+            collection_id,
         } = payload;
 
-        let collection = Collection::find_by_mint_id(&self.db, key.id.parse()?)
+        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
             .await?
             .context("collection not found")?;
+
+        Mint::find_by_id(&self.db, key.id.parse()?)
+            .await?
+            .context("mint not found")?;
 
         let typed_tx = self
             .edition_contract
@@ -241,7 +248,6 @@ impl Processor {
         let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
-
         Mint::create(&self.db, mints::Model {
             id: key.id.parse()?,
             collection_id: collection.id,
