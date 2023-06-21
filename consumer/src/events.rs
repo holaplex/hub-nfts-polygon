@@ -193,7 +193,9 @@ impl Processor {
     }
 
     async fn retry_mint(&self, key: NftEventKey, payload: MintEditionTransaction) -> Result<()> {
-        let MintEditionTransaction { receiver, amount } = payload;
+        let MintEditionTransaction {
+            receiver, amount, ..
+        } = payload;
 
         let collection = Collection::find_by_mint_id(&self.db, key.id.parse()?)
             .await?
@@ -230,9 +232,13 @@ impl Processor {
     }
 
     async fn mint_drop(&self, key: NftEventKey, payload: MintEditionTransaction) -> Result<()> {
-        let MintEditionTransaction { receiver, amount } = payload;
+        let MintEditionTransaction {
+            receiver,
+            amount,
+            collection_id,
+        } = payload;
 
-        let collection = Collection::find_by_id(&self.db, key.id.parse()?)
+        let collection = Collection::find_by_id(&self.db, collection_id.parse()?)
             .await?
             .context(format!("No collection found for id {:?}", key.id))?;
 
