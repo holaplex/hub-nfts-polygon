@@ -146,7 +146,6 @@ impl Processor {
         let CreateEditionTransaction {
             fee_receiver,
             fee_numerator,
-            receiver,
             amount,
             ..
         } = payload;
@@ -168,7 +167,7 @@ impl Processor {
             .create_edition(
                 collection.edition_id.into(),
                 edition_info,
-                receiver.parse()?,
+                collection.owner.parse()?,
                 amount.into(),
                 fee_receiver.parse()?,
                 fee_numerator.try_into()?,
@@ -209,12 +208,10 @@ impl Processor {
             .await?
             .context("mint not found")?;
 
-        let deployer = self.edition_contract.owner().await?;
-
         let typed_tx = self
             .edition_contract
             .safe_transfer_from(
-                deployer,
+                collection.owner.parse()?,
                 receiver.parse()?,
                 collection.edition_id.into(),
                 amount.into(),
