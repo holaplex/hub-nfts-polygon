@@ -36,7 +36,10 @@ pub fn main() {
                 signing_key,
             );
 
-            let app = Route::new().at("/", post(process).with(AddData::new(processor)));
+            let app = Route::new().at(
+                "/webhooks/polygon",
+                post(process).with(AddData::new(processor)),
+            );
             Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))
                 .run(app)
                 .await
