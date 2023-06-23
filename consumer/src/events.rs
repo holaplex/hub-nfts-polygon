@@ -128,7 +128,7 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitCreateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id,
                     },
                 )),
@@ -179,7 +179,7 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitRetryCreateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id: collection.edition_id,
                     },
                 )),
@@ -224,7 +224,7 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitRetryMintDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id: collection.edition_id,
                     },
                 )),
@@ -273,7 +273,7 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitMintDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id: collection.edition_id,
                     },
                 )),
@@ -322,7 +322,7 @@ impl Processor {
                 event: Some(polygon_nft_events::Event::SubmitUpdateDropTxn(
                     PolygonTransaction {
                         data: bytes.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id: collection_model.edition_id,
                     },
                 )),
@@ -437,12 +437,12 @@ impl Processor {
                 PolygonTokenTransferTxns {
                     permit_token_transfer_txn: Some(PolygonTransaction {
                         data: permit_tx_data.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id,
                     }),
                     safe_transfer_from_txn: Some(PolygonTransaction {
                         data: safe_transfer_from_data.0.to_vec(),
-                        contract_address: self.edition_contract.address().to_string(),
+                        contract_address: format!("{:?}", self.edition_contract.address()),
                         edition_id,
                     }),
                 },
