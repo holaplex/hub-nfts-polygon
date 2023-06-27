@@ -5,7 +5,7 @@ use crate::proto::{self, PolygonNftEventKey, PolygonNftEvents};
 
 #[derive(Debug)]
 pub enum Services {
-    Nfts(proto::NftEventKey, proto::PolygonEvents),
+    Nfts(proto::NftEventKey, proto::NftEvents),
     Treasuries(proto::TreasuryEventKey, proto::TreasuryEvents),
 }
 
@@ -21,7 +21,7 @@ impl hub_core::consumer::MessageGroup for Services {
         match topic {
             "hub-nfts" => {
                 let key = proto::NftEventKey::decode(key)?;
-                let val = proto::PolygonEvents::decode(val)?;
+                let val = proto::NftEvents::decode(val)?;
 
                 Ok(Services::Nfts(key, val))
             },

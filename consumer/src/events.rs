@@ -3,7 +3,7 @@ use holaplex_hub_nfts_polygon_core::{
     db::Connection,
     proto::{
         self,
-        polygon_events::Event as PolygonEvents,
+        nft_events::Event as NftEvents,
         polygon_nft_events,
         treasury_events::{EcdsaSignature, Event as TreasuryEvents, PolygonPermitHashSignature},
         CreateEditionTransaction, MintEditionTransaction, NftEventKey, PermitArgsHash,
@@ -47,17 +47,19 @@ impl Processor {
         // match topics
         match msg {
             Services::Nfts(key, e) => match e.event {
-                Some(PolygonEvents::CreateDrop(payload)) => {
+                Some(NftEvents::PolygonCreateDrop(payload)) => {
                     self.create_polygon_edition(key, payload).await
                 },
-                Some(PolygonEvents::RetryDrop(payload)) => self.retry_drop(key, payload).await,
-                Some(PolygonEvents::MintDrop(payload)) => self.mint_drop(key, payload).await,
-                Some(PolygonEvents::UpdateDrop(payload)) => self.update_drop(key, payload).await,
-                Some(PolygonEvents::RetryMintDrop(payload)) => self.retry_mint(key, payload).await,
-                Some(PolygonEvents::TransferAsset(payload)) => {
+                Some(NftEvents::PolygonRetryDrop(payload)) => self.retry_drop(key, payload).await,
+                Some(NftEvents::PolygonMintDrop(payload)) => self.mint_drop(key, payload).await,
+                Some(NftEvents::PolygonUpdateDrop(payload)) => self.update_drop(key, payload).await,
+                Some(NftEvents::PolygonRetryMintDrop(payload)) => {
+                    self.retry_mint(key, payload).await
+                },
+                Some(NftEvents::PolygonTransferAsset(payload)) => {
                     self.sign_permit_token_transfer_hash(key, payload).await
                 },
-                None => Ok(()),
+                Some(_) | None => Ok(()),
             },
             Services::Treasuries(key, e) => match e.event {
                 Some(TreasuryEvents::PolygonPermitTransferTokenHashSigned(p)) => {
