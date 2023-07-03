@@ -71,7 +71,11 @@ RUN apt-get update -y && \
   && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd $APP_USER \
-  && useradd --uid 10000 -g $APP_USER $APP_USER 
+    && useradd --uid 10000 -g $APP_USER $APP_USER \
+    && mkdir -p bin
+
+RUN chown -R $APP_USER:$APP_USER bin
+
 USER 10000
 
 FROM base AS hub-nfts-polygon
@@ -80,8 +84,6 @@ COPY --from=builder-hub-nfts-polygon /app/target/release/holaplex-hub-nfts-polyg
 CMD ["/usr/local/bin/holaplex-hub-nfts-polygon"]
 
 FROM base AS migrator
-
-RUN mkdir -p bin && chown -R $APP_USER:$APP_USER bin
 
 COPY --from=builder-migration /app/target/release/migration bin/
 CMD ["bin/migration"]
