@@ -57,18 +57,18 @@ RUN cargo build --release --bin migration
 
 
 FROM debian:bullseye-slim as base
+
 WORKDIR /app
+
+ENV TZ=Etc/UTC
+ENV APP_USER=runner
+
 RUN apt-get update -y && \
   apt-get install -y \
     ca-certificates \
     libpq5 \
     libssl1.1 \
-  && \
-  rm -rf /var/lib/apt/lists/*
-
-FROM base AS hub-nfts-polygon
-ENV TZ=Etc/UTC
-ENV APP_USER=runner
+  && rm -rf /var/lib/apt/lists/*
 
 RUN groupadd $APP_USER \
     && useradd --uid 10000 -g $APP_USER $APP_USER \
@@ -77,10 +77,18 @@ RUN groupadd $APP_USER \
 RUN chown -R $APP_USER:$APP_USER bin
 
 USER 10000
+
+FROM base AS hub-nfts-polygon
+
 COPY --from=builder-hub-nfts-polygon /app/target/release/holaplex-hub-nfts-polygon /usr/local/bin
-COPY --from=builder-hub-nfts-polygon-indexer /app/target/release/holaplex-hub-nfts-polygon-indexer /usr/local/bin
 CMD ["/usr/local/bin/holaplex-hub-nfts-polygon"]
 
 FROM base AS migrator
+
 COPY --from=builder-migration /app/target/release/migration bin/
 CMD ["bin/migration"]
+
+FROM base AS polygon-indexer
+
+COPY --from=builder-hub-nfts-polygon-indexer /app/target/release/holaplex-hub-nfts-polygon-indexer /usr/local/bin
+CMD ["/usr/local/bin/holaplex-hub-nfts-polygon-indexer"]
