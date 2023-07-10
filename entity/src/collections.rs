@@ -8,8 +8,11 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub edition_id: i32,
+    #[sea_orm(select_as = "text", save_as = "citext")]
     pub fee_receiver: String,
+    #[sea_orm(select_as = "text", save_as = "citext")]
     pub owner: String,
+    #[sea_orm(select_as = "text", save_as = "citext")]
     pub creator: String,
     pub uri: String,
     pub name: String,
