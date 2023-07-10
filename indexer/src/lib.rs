@@ -10,6 +10,8 @@ use hub_core::{anyhow::Context, clap};
 use poem::{FromRequest, Request, RequestBody, Result};
 use sha2::Sha256;
 
+const NULL_ADDRESS: &str = "0x0000000000000000000000000000000000000000";
+
 #[derive(Debug, clap::Args)]
 #[command(version, author, about)]
 pub struct Args {
@@ -23,7 +25,7 @@ pub struct Args {
     pub webhook_signing_key: String,
 
     #[arg(long, env)]
-    pub polygon_edition_contract: String,
+    pub contract_deployer: String,
 }
 
 pub struct PayloadBytes(Vec<u8>);
