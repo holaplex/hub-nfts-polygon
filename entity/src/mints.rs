@@ -8,7 +8,7 @@ pub struct Model {
     #[sea_orm(primary_key, auto_increment = false)]
     pub id: Uuid,
     pub collection_id: Uuid,
-    #[sea_orm(column_type = "Text")]
+    #[sea_orm(select_as = "text", save_as = "citext")]
     pub owner: String,
     pub amount: i32,
     pub created_at: DateTime,
