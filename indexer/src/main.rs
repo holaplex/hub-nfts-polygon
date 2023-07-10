@@ -13,7 +13,7 @@ pub fn main() {
             db,
             port,
             webhook_signing_key,
-            polygon_edition_contract,
+            contract_deployer,
         } = args;
 
         common.rt.block_on(async move {
@@ -29,12 +29,8 @@ pub fn main() {
 
             let signing_key: Vec<_> = webhook_signing_key.bytes().collect();
 
-            let processor = NftActivityController::new(
-                connection,
-                producer,
-                polygon_edition_contract,
-                signing_key,
-            );
+            let processor =
+                NftActivityController::new(connection, producer, contract_deployer, signing_key);
 
             let app = Route::new().at("/", post(process).with(AddData::new(processor)));
             Server::new(TcpListener::bind(format!("0.0.0.0:{port}")))

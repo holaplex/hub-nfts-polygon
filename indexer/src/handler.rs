@@ -20,7 +20,7 @@ use hub_core::{
 };
 use poem::{handler, web::Data, Request, Result};
 
-use crate::{types::*, PayloadBytes, Signature};
+use crate::{types::*, PayloadBytes, Signature, NULL_ADDRESS};
 
 #[handler]
 pub async fn process(
@@ -38,7 +38,7 @@ pub async fn process(
 pub struct NftActivityController {
     db: Connection,
     producer: Producer<PolygonNftEvents>,
-    contract_addr: String,
+    deployer_addr: String,
     signing_key: Vec<u8>,
 }
 
@@ -46,13 +46,13 @@ impl NftActivityController {
     pub fn new(
         db: Connection,
         producer: Producer<PolygonNftEvents>,
-        contract_addr: String,
+        deployer_addr: String,
         signing_key: Vec<u8>,
     ) -> Self {
         Self {
             db,
             producer,
-            contract_addr,
+            deployer_addr,
             signing_key,
         }
     }
@@ -74,7 +74,7 @@ impl NftActivityController {
     }
 
     async fn process_nft_activity(&self, event: ActivityPayload, ts: &Timestamp) -> Result<()> {
-        if event.from_address == self.contract_addr {
+        if event.from_address == self.deployer_addr || event.from_address == NULL_ADDRESS {
             return Ok(());
         }
 
