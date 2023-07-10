@@ -421,7 +421,7 @@ impl Processor {
         let safe_transfer_from = self
             .edition_contract
             .safe_transfer_from(
-                spender.parse()?,
+                owner.parse()?,
                 recipient.parse()?,
                 edition_id.into(),
                 amount.into(),
