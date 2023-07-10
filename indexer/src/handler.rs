@@ -17,6 +17,7 @@ use hub_core::{
     producer::Producer,
     prost_types::Timestamp,
     serde_json,
+    tracing::info,
 };
 use poem::{handler, web::Data, Request, Result};
 
@@ -94,6 +95,8 @@ impl NftActivityController {
                 tokio::spawn(async move {
                     let edition_id = strip_prefix(token.token_id)?;
                     let value = strip_prefix(token.value)?;
+                    info!("edition_id: {:?}", edition_id);
+                    info!("value: {:?}", value);
 
                     let mints =
                         Mint::get_mints_for_edition(&db, &event.from_address, edition_id, value)
