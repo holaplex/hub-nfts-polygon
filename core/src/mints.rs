@@ -42,14 +42,19 @@ impl Mint {
     pub async fn find_with_collection(
         db: &Connection,
         id: Uuid,
-    ) -> Result<Option<(Model, Option<Collection>)>, DbErr> {
+    ) -> Result<(Model, Option<Collection>), DbErr> {
         let conn: &DatabaseConnection = db.get();
 
-        Entity::find()
-            .filter(Column::Id.eq(id))
-            .find_also_related(Collections)
+        let mint = Entity::find_by_id(id)
             .one(conn)
-            .await
+            .await?
+            .ok_or(DbErr::Custom("Mint not found".to_owned()))?;
+
+        let collection = Collections::find_by_id(mint.collection_id)
+            .one(conn)
+            .await?;
+
+        Ok((mint, collection))
     }
 
     /// Res

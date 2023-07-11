@@ -350,9 +350,8 @@ impl Processor {
             amount,
         } = payload;
 
-        let (_, collection) = Mint::find_with_collection(&self.db, collection_mint_id.parse()?)
-            .await?
-            .context(format!("No mint found for id {collection_mint_id}"))?;
+        let (_, collection) =
+            Mint::find_with_collection(&self.db, collection_mint_id.parse()?).await?;
 
         let collection = collection.context("No collection found")?;
 
